@@ -1,8 +1,16 @@
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-50: #ecf7f3;
+  --color-brand-100: #d0ebe2;
+  --color-brand-500: #1a8a6d;
+  --color-brand-600: #0f7058;
+  --color-brand-700: #0b5d4b;
+  --color-brand-800: #094a3c;
 }
 
-main {
-  padding: 2rem;
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
 }
