@@ -10,7 +10,8 @@ import { OverviewPage } from './pages/OverviewPage';
 import { PaymentLinksPage } from './pages/PaymentLinksPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { TransactionsPage } from './pages/TransactionsPage';
-
+import { FetchDemoPage } from './pages/FetchDemoPage';
+import { QueryDemoPage } from './pages/QueryDemoPage';
 function App() {
   return (
     <BrowserRouter>
@@ -27,6 +28,8 @@ function App() {
 
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="dev/components" element={<ComponentsPreview />} />
+        <Route path="dev/fetch-demo" element={<FetchDemoPage />} />
+        <Route path="dev/query-demo" element={<QueryDemoPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
