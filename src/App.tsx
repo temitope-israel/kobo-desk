@@ -12,6 +12,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { TransactionsPage } from './pages/TransactionsPage';
 import { FetchDemoPage } from './pages/FetchDemoPage';
 import { QueryDemoPage } from './pages/QueryDemoPage';
+import { MockControls } from './components/dev/MockControls';
 function App() {
   return (
     <BrowserRouter>
@@ -25,7 +26,7 @@ function App() {
           <Route path="payment-links" element={<PaymentLinksPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
-
+        <Route element={import.meta.env.DEV && <MockControls />}></Route>
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="dev/components" element={<ComponentsPreview />} />
         <Route path="dev/fetch-demo" element={<FetchDemoPage />} />
