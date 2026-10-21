@@ -3,7 +3,7 @@ import type { Currency, Transaction } from '../../types/payment';
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type OverviewStats = {
-  /** Mnior Units */
+  /** Minor units */
   revenue: number;
   successfulCount: number;
   failedCount: number;
@@ -12,7 +12,7 @@ export type OverviewStats = {
 };
 
 export type DailyRevenue = {
-  /** A day like '2026-10-06 */
+  /** A day key like '2026-10-06' */
   date: string;
   /** Minor units */
   revenue: number;
@@ -37,6 +37,7 @@ function getDayFormatter(timeZone: string): Intl.DateTimeFormat {
   }
   return formatter;
 }
+
 /** Which calendar day is this moment, for someone in this time zone? */
 export function toDayKey(time: number | string, timeZone: string): string {
   const parts = getDayFormatter(timeZone).formatToParts(new Date(time));
@@ -58,7 +59,7 @@ type FilterOptions = {
   timeZone: string;
 };
 
-/** Keep transactions in one currency that fall insdie the last N calendar days. */
+/** Keep transactions in one currency that fall inside the last N calendar days. */
 export function filterTransactions(
   transactions: Transaction[],
   { currency, days, now, timeZone }: FilterOptions,
@@ -66,8 +67,7 @@ export function filterTransactions(
   const periodDays = new Set(getPeriodDays(days, now, timeZone));
   return transactions.filter(
     (transaction) =>
-      transaction.currency === currency &&
-      periodDays.has(toDayKey(transaction.createdAt, timeZone)),
+      transaction.currency === currency && periodDays.has(toDayKey(transaction.createdAt, timeZone)),
   );
 }
 
@@ -84,6 +84,7 @@ export function calculateStats(transactions: Transaction[]): OverviewStats {
       failedCount += 1;
     }
   }
+
   const finished = successfulCount + failedCount;
 
   return {
@@ -94,7 +95,7 @@ export function calculateStats(transactions: Transaction[]): OverviewStats {
   };
 }
 
-/** Revenue for each of the last N days, including days with no sale. */
+/** Revenue for each of the last N days, including days with no sales. */
 export function getDailyRevenue(
   transactions: Transaction[],
   days: number,
@@ -108,6 +109,7 @@ export function getDailyRevenue(
     totals[day] = (totals[day] ?? 0) + transaction.amount;
     return totals;
   }, {});
+
   return getPeriodDays(days, now, timeZone).map((date) => ({
     date,
     revenue: revenueByDay[date] ?? 0,
@@ -116,5 +118,7 @@ export function getDailyRevenue(
 
 /** The newest transactions first. Does not change the list it is given. */
 export function getRecentTransactions(transactions: Transaction[], count: number): Transaction[] {
-  return [...transactions].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, count);
+  return [...transactions]
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, count);
 }
