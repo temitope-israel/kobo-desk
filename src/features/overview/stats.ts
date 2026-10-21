@@ -67,7 +67,8 @@ export function filterTransactions(
   const periodDays = new Set(getPeriodDays(days, now, timeZone));
   return transactions.filter(
     (transaction) =>
-      transaction.currency === currency && periodDays.has(toDayKey(transaction.createdAt, timeZone)),
+      transaction.currency === currency &&
+      periodDays.has(toDayKey(transaction.createdAt, timeZone)),
   );
 }
 
@@ -118,7 +119,5 @@ export function getDailyRevenue(
 
 /** The newest transactions first. Does not change the list it is given. */
 export function getRecentTransactions(transactions: Transaction[], count: number): Transaction[] {
-  return [...transactions]
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, count);
+  return [...transactions].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, count);
 }
