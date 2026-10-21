@@ -26,13 +26,14 @@ function App() {
           <Route path="payment-links" element={<PaymentLinksPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
-        <Route element={import.meta.env.DEV && <MockControls />}></Route>
+        {/* <Route element={import.meta.env.DEV && <MockControls />}></Route> */}
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="dev/components" element={<ComponentsPreview />} />
         <Route path="dev/fetch-demo" element={<FetchDemoPage />} />
         <Route path="dev/query-demo" element={<QueryDemoPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      {import.meta.env.DEV && <MockControls />}
     </BrowserRouter>
   );
 }
