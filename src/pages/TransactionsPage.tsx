@@ -7,7 +7,7 @@ import { Input } from '../components/Input';
 import { PageHeader } from '../components/PageHeader';
 import { Pagination } from '../components/Pagination';
 import { SkeletonRows } from '../components/Skeleton';
-import { getLocalTimeZone } from '../features/overview/stats';
+import { getLocalTimeZone } from '../lib/dates';
 import { searchTransactions } from '../features/transactions/search';
 import { TransactionCards } from '../features/transactions/TransactionCards';
 import { TransactionsTable } from '../features/transactions/TransactionsTable';

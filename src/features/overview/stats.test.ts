@@ -4,9 +4,7 @@ import {
   calculateStats,
   filterTransactions,
   getDailyRevenue,
-  getPeriodDays,
   getRecentTransactions,
-  toDayKey,
 } from './stats';
 
 const NOW = Date.parse('2026-10-10T12:00:00.000Z');
@@ -24,20 +22,6 @@ function makeTransaction(overrides: Partial<Transaction> = {}): Transaction {
     ...overrides,
   };
 }
-
-describe('toDayKey', () => {
-  it('gives the calendar day in a time zone', () => {
-    const moment = '2026-10-10T23:30:00.000Z';
-    expect(toDayKey(moment, 'UTC')).toBe('2026-10-10');
-    expect(toDayKey(moment, 'Africa/Lagos')).toBe('2026-10-11');
-  });
-});
-
-describe('getPeriodDays', () => {
-  it('lists the last N days, oldest first, ending today', () => {
-    expect(getPeriodDays(3, NOW, 'UTC')).toEqual(['2026-10-08', '2026-10-09', '2026-10-10']);
-  });
-});
 
 describe('filterTransactions', () => {
   const options = { currency: 'NGN' as const, days: 7, now: NOW, timeZone: 'UTC' };

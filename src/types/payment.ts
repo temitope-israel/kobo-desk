@@ -1,6 +1,8 @@
-export type Currency = 'NGN' | 'GHS' | 'KES' | 'USD';
+export const CURRENCIES = ['NGN', 'GHS', 'KES', 'USD'];
+export type Currency = (typeof CURRENCIES)[number];
 
-export type PaymentStatus = 'successful' | 'failed' | 'pending' | 'refunded';
+export const PAYMENT_STATUSES = ['successful', 'failed', 'pending', 'refunded'];
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 export type PaymentMethod = 'card' | 'bank_transfer' | 'ussd';
 
