@@ -65,3 +65,22 @@ export type Dispute = {
   dueAt: string;
   createdAt: string;
 };
+
+export type TransactionEventType =
+  'initiated' | 'authorised' | 'succeeded' | 'failed' | 'pending' | 'refunded';
+
+export type TransactionEvent = {
+  id: string;
+  type: TransactionEventType;
+  message: string;
+  /** An ISO date string */
+  at: string;
+};
+
+/** What the single-transaction endpoint returns: a transaction plus more detail. */
+export type TransactionDetail = Transaction & {
+  /** For example 'Card ending 4821' (never the full card number) */
+  methodDetail: string;
+  failureReason?: string;
+  events: TransactionEvent[];
+};

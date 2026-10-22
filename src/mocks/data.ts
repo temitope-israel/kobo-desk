@@ -10,6 +10,8 @@ import type {
   Settlement,
   SettlementStatus,
   Transaction,
+  TransactionDetail,
+  TransactionEvent,
 } from '../types/payment';
 import { createRandom } from './random';
 
@@ -201,3 +203,76 @@ export const disputes: Dispute[] = transactions
       dueAt: new Date(new Date(createdAt).getTime() + 10 * DAY_MS).toISOString(),
     };
   });
+
+const FAILURE_REASONS = [
+  'Insufficient funds',
+  'Card declined by the bank',
+  'Authentication failed',
+  'The payment timed out',
+] as const;
+
+export function getTransactionDetail(id: string): TransactionDetail | undefined {
+  const index = transactions.findIndex((transaction) => transaction.id === id);
+  if (index === -1) return undefined;
+
+  const transaction = transactions[index];
+  const detailRandom = createRandom(9000 + index);
+  const between = (min: number, max: number) => Math.floor(detailRandom() * (max - min + 1)) + min;
+  const at = (seconds: number) =>
+    new Date(new Date(transaction.createdAt).getTime() + seconds * 1000).toISOString();
+
+  const authorisedAfter = between(3, 8);
+  const finishedAfter = authorisedAfter + between(4, 12);
+  const failureReason =
+    transaction.status === 'failed'
+      ? FAILURE_REASONS[between(0, FAILURE_REASONS.length - 1)]
+      : undefined;
+
+  const events: TransactionEvent[] = [
+    { id: `${id}_evt_1`, type: 'initiated', message: 'Payment started by the customer', at: at(0) },
+  ];
+
+  if (transaction.status === 'pending') {
+    events.push({
+      id: `${id}_evt_2`,
+      type: 'pending',
+      message: 'Waiting for confirmation from the bank',
+      at: at(authorisedAfter),
+    });
+  } else if (transaction.status === 'failed') {
+    events.push({
+      id: `${id}_evt_2`,
+      type: 'failed',
+      message: `Payment failed: ${failureReason}`,
+      at: at(finishedAfter),
+    });
+  } else {
+    events.push(
+      {
+        id: `${id}_evt_2`,
+        type: 'authorised',
+        message: 'Payment authorised by the bank',
+        at: at(authorisedAfter),
+      },
+      { id: `${id}_evt_3`, type: 'succeeded', message: 'Payment completed', at: at(finishedAfter) },
+    );
+
+    if (transaction.status === 'refunded') {
+      events.push({
+        id: `${id}_evt_4`,
+        type: 'refunded',
+        message: 'Refund completed',
+        at: at(finishedAfter + between(3600, 86400)),
+      });
+    }
+  }
+
+  const methodDetail =
+    transaction.method === 'card'
+      ? `Card ending ${between(1000, 9999)}`
+      : transaction.method === 'bank_transfer'
+        ? `Bank transfer from ${BANKS[between(0, BANKS.length - 1)]}`
+        : 'USSD payment';
+
+  return { ...transaction, methodDetail, failureReason, events };
+}

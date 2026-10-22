@@ -33,3 +33,16 @@ export function formatDateTime(iso: string, timeZone: string): string {
     timeZone,
   }).format(new Date(iso));
 }
+
+/** An ISO date string -> '6 Oct, 09:41:07' in the given time zone */
+export function formatTimestamp(iso: string, timeZone: string): string {
+  return new Intl.DateTimeFormat('en-NG', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone,
+  }).format(new Date(iso));
+}
