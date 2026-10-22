@@ -1,6 +1,5 @@
+import { getPeriodDays, toDayKey } from '../../lib/dates';
 import type { Currency, Transaction } from '../../types/payment';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type OverviewStats = {
   /** Minor units */
@@ -17,40 +16,6 @@ export type DailyRevenue = {
   /** Minor units */
   revenue: number;
 };
-
-export function getLocalTimeZone(): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
-const dayFormatters = new Map<string, Intl.DateTimeFormat>();
-
-function getDayFormatter(timeZone: string): Intl.DateTimeFormat {
-  let formatter = dayFormatters.get(timeZone);
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-    dayFormatters.set(timeZone, formatter);
-  }
-  return formatter;
-}
-
-/** Which calendar day is this moment, for someone in this time zone? */
-export function toDayKey(time: number | string, timeZone: string): string {
-  const parts = getDayFormatter(timeZone).formatToParts(new Date(time));
-  const part = (type: string) => parts.find((p) => p.type === type)?.value;
-  return `${part('year')}-${part('month')}-${part('day')}`;
-}
-
-/** The last N calendar days, oldest first, ending today. */
-export function getPeriodDays(days: number, now: number, timeZone: string): string[] {
-  return Array.from({ length: days }, (_, index) =>
-    toDayKey(now - (days - 1 - index) * DAY_MS, timeZone),
-  );
-}
 
 type FilterOptions = {
   currency: Currency;

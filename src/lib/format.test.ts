@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { formatCompactNumber, formatDateTime, formatDay, formatPercent } from './format';
+import {
+  formatCompactNumber,
+  formatDateTime,
+  formatDay,
+  formatPercent,
+  formatTimestamp,
+} from './format';
 
 describe('formatPercent', () => {
   it('turns a fraction into a percentage with one decimal', () => {
@@ -37,5 +43,13 @@ describe('formatDateTime', () => {
     const iso = '2026-10-10T23:30:00.000Z';
     expect(formatDateTime(iso, 'UTC')).toContain('23:30');
     expect(formatDateTime(iso, 'Africa/Lagos')).toContain('00:30'); // One hour ahead, next day
+  });
+});
+
+describe('formatTimestamp', () => {
+  it('includes seconds and respects the time zone', () => {
+    const iso = '2026-10-10T23:30:45.000Z';
+    expect(formatTimestamp(iso, 'UTC')).toContain('23:30:45');
+    expect(formatTimestamp(iso, 'Africa/Lagos')).toContain('00:30:45');
   });
 });

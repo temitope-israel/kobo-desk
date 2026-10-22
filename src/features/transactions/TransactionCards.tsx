@@ -1,4 +1,5 @@
 import { Badge } from '../../components/Badge';
+import { Button } from '../../components/Button';
 import { formatDateTime } from '../../lib/format';
 import { formatMoney } from '../../lib/money';
 import type { Transaction } from '../../types/payment';
@@ -6,9 +7,10 @@ import type { Transaction } from '../../types/payment';
 type TransactionCardsProps = {
   transactions: Transaction[];
   timeZone: string;
+  onSelect: (id: string) => void;
 };
 
-export function TransactionCards({ transactions, timeZone }: TransactionCardsProps) {
+export function TransactionCards({ transactions, timeZone, onSelect }: TransactionCardsProps) {
   return (
     <ul className="space-y-3 md:hidden">
       {transactions.map((transaction) => (
@@ -28,6 +30,15 @@ export function TransactionCards({ transactions, timeZone }: TransactionCardsPro
               {formatDateTime(transaction.createdAt, timeZone)}
             </p>
           </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="mt-3 w-full"
+            onClick={() => onSelect(transaction.id)}
+            aria-label={`View details for ${transaction.reference}`}
+          >
+            View details
+          </Button>
         </li>
       ))}
     </ul>

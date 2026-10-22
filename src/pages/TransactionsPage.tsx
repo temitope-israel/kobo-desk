@@ -1,44 +1,46 @@
-import { useState } from 'react';
 import { Button } from '../components/Button';
+import { Drawer } from '../components/Drawer';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { InlineNotice } from '../components/InlineNotice';
-import { Input } from '../components/Input';
 import { PageHeader } from '../components/PageHeader';
 import { Pagination } from '../components/Pagination';
 import { SkeletonRows } from '../components/Skeleton';
-import { getLocalTimeZone } from '../features/overview/stats';
-import { searchTransactions } from '../features/transactions/search';
+import { FilterBar } from '../features/transactions/FilterBar';
+import {
+  applyFilters,
+  hasActiveFilters,
+  nextSort,
+  PAGE_SIZES,
+} from '../features/transactions/filters';
+import type { SortField } from '../features/transactions/filters';
 import { TransactionCards } from '../features/transactions/TransactionCards';
+import { TransactionDetailPanel } from '../features/transactions/TransactionDetailPanel';
 import { TransactionsTable } from '../features/transactions/TransactionsTable';
+import { useTransactionFilters } from '../features/transactions/useTransactionFilters';
 import { useTransactions } from '../features/transactions/useTransactions';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { getLocalTimeZone } from '../lib/dates';
 import { getErrorMessage } from '../lib/errors';
 import { paginate } from '../lib/paginate';
 
-const PAGE_SIZE_OPTIONS = [10, 25, 50];
-
 export function TransactionsPage() {
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const debouncedSearch = useDebouncedValue(search, 250);
   const timeZone = getLocalTimeZone();
-
+  const { filters, update, clearFilters, selectedId, select } = useTransactionFilters();
   const { data, isPending, isError, error, isFetching, refetch } = useTransactions();
 
-  function handleSearchChange(value: string) {
-    setSearch(value);
-    setPage(1);
+  const results = data === undefined ? [] : applyFilters(data, filters, timeZone);
+  const pageData = paginate(results, filters.page, filters.pageSize);
+  const selected = data?.find((transaction) => transaction.id === selectedId);
+  const missingSelection = data !== undefined && selectedId !== null && selected === undefined;
+  const hasActive = hasActiveFilters(filters);
+
+  function handleSort(field: SortField) {
+    update(nextSort({ sort: filters.sort, dir: filters.dir }, field));
   }
 
-  function handlePageSizeChange(size: number) {
-    setPageSize(size);
-    setPage(1);
+  function closeDetail() {
+    if (selectedId !== null) select(null);
   }
-
-  const results = data === undefined ? [] : searchTransactions(data, debouncedSearch);
-  const pageData = paginate(results, page, pageSize);
 
   return (
     <div>
@@ -73,6 +75,18 @@ export function TransactionsPage() {
             </InlineNotice>
           )}
 
+          {missingSelection && (
+            <InlineNotice
+              action={
+                <Button variant="secondary" size="sm" onClick={() => select(null)}>
+                  Dismiss
+                </Button>
+              }
+            >
+              We could not find that transaction. It may not exist, or the link may be wrong.
+            </InlineNotice>
+          )}
+
           {data.length === 0 ? (
             <EmptyState
               title="No transactions yet"
@@ -80,45 +94,53 @@ export function TransactionsPage() {
             />
           ) : (
             <>
-              <div className="flex flex-wrap items-end gap-3">
-                <div className="w-full sm:max-w-xs">
-                  <Input
-                    label="Search"
-                    type="search"
-                    placeholder="Reference, name or email"
-                    value={search}
-                    onChange={(event) => handleSearchChange(event.target.value)}
-                  />
-                </div>
-                <Button variant="secondary" onClick={() => refetch()} disabled={isFetching}>
-                  {isFetching ? 'Refreshing...' : 'Refresh'}
-                </Button>
-              </div>
+              <FilterBar
+                filters={filters}
+                hasActive={hasActive}
+                isFetching={isFetching}
+                onChange={update}
+                onClear={clearFilters}
+                onRefresh={() => refetch()}
+              />
 
               {results.length === 0 ? (
                 <EmptyState
                   title="No matching transactions"
-                  description={`Nothing matches "${debouncedSearch.trim()}".`}
+                  description="Try changing or clearing your filters."
                   action={
-                    <Button variant="secondary" onClick={() => handleSearchChange('')}>
-                      Clear search
-                    </Button>
+                    hasActive ? (
+                      <Button variant="secondary" onClick={clearFilters}>
+                        Clear filters
+                      </Button>
+                    ) : undefined
                   }
                 />
               ) : (
                 <>
-                  <TransactionsTable transactions={pageData.items} timeZone={timeZone} />
-                  <TransactionCards transactions={pageData.items} timeZone={timeZone} />
+                  <TransactionsTable
+                    transactions={pageData.items}
+                    timeZone={timeZone}
+                    sort={filters.sort}
+                    dir={filters.dir}
+                    canSortByAmount={filters.currency !== 'all'}
+                    onSort={handleSort}
+                    onSelect={select}
+                  />
+                  <TransactionCards
+                    transactions={pageData.items}
+                    timeZone={timeZone}
+                    onSelect={select}
+                  />
                   <Pagination
                     page={pageData.page}
                     pageCount={pageData.pageCount}
-                    pageSize={pageSize}
-                    pageSizeOptions={PAGE_SIZE_OPTIONS}
+                    pageSize={filters.pageSize}
+                    pageSizeOptions={PAGE_SIZES}
                     from={pageData.from}
                     to={pageData.to}
                     total={pageData.total}
-                    onPageChange={setPage}
-                    onPageSizeChange={handlePageSizeChange}
+                    onPageChange={(page) => update({ page })}
+                    onPageSizeChange={(pageSize) => update({ pageSize })}
                   />
                 </>
               )}
@@ -126,6 +148,10 @@ export function TransactionsPage() {
           )}
         </div>
       )}
+
+      <Drawer open={selected !== undefined} onClose={closeDetail} title="Transaction details">
+        {selected && <TransactionDetailPanel transaction={selected} timeZone={timeZone} />}
+      </Drawer>
     </div>
   );
 }

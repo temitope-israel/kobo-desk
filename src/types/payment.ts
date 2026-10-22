@@ -1,6 +1,8 @@
-export type Currency = 'NGN' | 'GHS' | 'KES' | 'USD';
+export const CURRENCIES = ['NGN', 'GHS', 'KES', 'USD'];
+export type Currency = (typeof CURRENCIES)[number];
 
-export type PaymentStatus = 'successful' | 'failed' | 'pending' | 'refunded';
+export const PAYMENT_STATUSES = ['successful', 'failed', 'pending', 'refunded'];
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 export type PaymentMethod = 'card' | 'bank_transfer' | 'ussd';
 
@@ -62,4 +64,23 @@ export type Dispute = {
   /** The last moment the merchant can respond */
   dueAt: string;
   createdAt: string;
+};
+
+export type TransactionEventType =
+  'initiated' | 'authorised' | 'succeeded' | 'failed' | 'pending' | 'refunded';
+
+export type TransactionEvent = {
+  id: string;
+  type: TransactionEventType;
+  message: string;
+  /** An ISO date string */
+  at: string;
+};
+
+/** What the single-transaction endpoint returns: a transaction plus more detail. */
+export type TransactionDetail = Transaction & {
+  /** For example 'Card ending 4821' (never the full card number) */
+  methodDetail: string;
+  failureReason?: string;
+  events: TransactionEvent[];
 };

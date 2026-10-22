@@ -5,7 +5,7 @@ import { PageHeader } from '../components/PageHeader';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { Skeleton } from '../components/Skeleton';
 import { OverviewContent } from '../features/overview/OverviewContent';
-import { getLocalTimeZone } from '../features/overview/stats';
+import { getLocalTimeZone } from '../lib/dates';
 import { useTransactions } from '../features/transactions/useTransactions';
 import { getErrorMessage } from '../lib/errors';
 import type { Currency } from '../types/payment';
