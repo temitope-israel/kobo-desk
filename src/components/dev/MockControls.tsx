@@ -14,11 +14,17 @@ const MODES: { mode: MockMode; label: string }[] = [
 export function MockControls() {
   const queryClient = useQueryClient();
   const [active, setActive] = useState<MockMode>(getMockMode());
+  const [keepData, setKeepData] = useState(false);
 
   function choose(mode: MockMode) {
     setMockMode(mode);
     setActive(mode);
-    void queryClient.resetQueries();
+
+    if (keepData) {
+      void queryClient.invalidateQueries();
+    } else {
+      void queryClient.resetQueries();
+    }
   }
 
   return (
@@ -44,6 +50,14 @@ export function MockControls() {
           </button>
         ))}
       </div>
+      <label className="mt-2 flex items-center gap-2 text-xs text-slate-600">
+        <input
+          type="checkbox"
+          checked={keepData}
+          onChange={(event) => setKeepData(event.target.checked)}
+        />
+        Keep loaded data when switching
+      </label>
     </div>
   );
 }
