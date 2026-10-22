@@ -35,11 +35,11 @@ export const DEFAULT_FILTERS: TransactionFilters = {
   pageSize: 10,
 };
 
-function isStatus(value: string | null): value is PaymentStatus {
+export function isStatus(value: string | null): value is PaymentStatus {
   return PAYMENT_STATUSES.some((status) => status === value);
 }
 
-function isCurrency(value: string | null): value is Currency {
+export function isCurrency(value: string | null): value is Currency {
   return CURRENCIES.some((currency) => currency === value);
 }
 
@@ -158,7 +158,7 @@ export function applyFilters(
   return sortTransactions(matching, filters.sort, filters.dir);
 }
 
-const DEFAULT_DIRECTION: Record<SortField, SortDirection> = {
+export const DEFAULT_DIRECTION: Record<SortField, SortDirection> = {
   createdAt: 'desc',
   amount: 'desc',
   customer: 'asc',
